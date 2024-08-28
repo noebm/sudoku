@@ -102,45 +102,46 @@ impl Sudoku {
         self.board.iter().all(|x| x.finished())
     }
 
+    fn solve_constraint(&mut self, indices: [usize; 9]) {
+        let values: Vec<_> = indices
+            .iter()
+            .filter_map(|&idx| self.board[idx].get())
+            .collect();
+
+        for value in values {
+            for idx in indices {
+                self.board[idx].eliminate(value)
+            }
+        }
+    }
+
     fn index(row: usize, column: usize) -> usize {
         row * 9 + column
     }
 
-    fn solve_rows(&mut self) {
-        for row in 0..9 {
-            let values: Vec<_> = (0..9)
-                .filter_map(|column| self.board[Self::index(row, column)].get())
-                .collect();
-
-            for value in values {
-                for column in 0..9 {
-                    self.board[Self::index(row, column)].eliminate(value)
-                }
-            }
-        }
+    fn row_indices(row: usize) -> [usize; 9] {
+        (0..9)
+            .map(|column| Self::index(row, column))
+            .collect::<Vec<_>>()
+            .try_into()
+            .unwrap()
     }
 
-    fn solve_columns(&mut self) {
-        for column in 0..9 {
-            let values: Vec<_> = (0..9)
-                .filter_map(|row| self.board[Self::index(row, column)].get())
-                .collect();
-
-            for value in values {
-                for row in 0..9 {
-                    self.board[Self::index(row, column)].eliminate(value)
-                }
-            }
-        }
+    fn column_indices(column: usize) -> [usize; 9] {
+        (0..9)
+            .map(|row| Self::index(row, column))
+            .collect::<Vec<_>>()
+            .try_into()
+            .unwrap()
     }
 
     fn box_indices(box_index: usize) -> [usize; 9] {
+        let base_row = box_index % 3;
+        let base_column = box_index / 3;
         let mut indices = [0; 9];
         let mut i = 0;
         for row in 0..3 {
-            let base_row = box_index % 3;
             for column in 0..3 {
-                let base_column = box_index / 3;
                 indices[i] = Self::index(base_row * 3 + row, base_column * 3 + column);
                 i += 1;
             }
@@ -149,18 +150,21 @@ impl Sudoku {
         indices
     }
 
+    fn solve_rows(&mut self) {
+        for indices in (0..9).map(Self::row_indices) {
+            self.solve_constraint(indices);
+        }
+    }
+
+    fn solve_columns(&mut self) {
+        for indices in (0..9).map(Self::column_indices) {
+            self.solve_constraint(indices);
+        }
+    }
+
     fn solve_boxes(&mut self) {
         for indices in (0..9).map(Self::box_indices) {
-            let values: Vec<_> = indices
-                .iter()
-                .filter_map(|&idx| self.board[idx].get())
-                .collect();
-
-            for value in values {
-                for idx in indices {
-                    self.board[idx].eliminate(value)
-                }
-            }
+            self.solve_constraint(indices);
         }
     }
 
