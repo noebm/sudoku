@@ -202,16 +202,9 @@ const BOARD: &str = "
 ";
 
 fn main() {
-    println!("{BOARD}");
-    println!();
-
     let mut sudoku = Sudoku::try_from(BOARD.to_string()).unwrap();
     println!("{sudoku}\n");
 
     sudoku.solve();
     println!("{sudoku}\n");
-
-    // Sudoku::try_from(BOARD.to_string().lines().collect())
-
-    // println!("Hello, world!");
 }
