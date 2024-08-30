@@ -22,33 +22,33 @@ impl<S, T> Cell<S, T> {
     }
 }
 
-#[derive(Clone)]
-struct SudokuCell(Cell<u8, Vec<u8>>);
+#[derive(Copy, Clone)]
+struct SudokuCell(Cell<u8, u16>);
 
 impl SudokuCell {
     fn all() -> Self {
-        Self(Cell::Possibly((1..=9).collect()))
+        let mut value = 0;
+        for index in 1..=9 {
+            value |= 1 << index;
+        }
+        Self(Cell::Possibly(value))
     }
 
     fn eliminate(&mut self, value: u8) {
         if let Cell::Possibly(values) = &mut self.0 {
-            // FIXME this only works for elements contained at most 1 time!
-            values
-                .iter()
-                .position(|&x| x == value)
-                .map(|index| values.remove(index));
+            *values &= !(1 << value);
 
-            assert!(!values.is_empty());
+            assert!(values.count_ones() >= 1);
 
-            if values.len() == 1 {
-                self.0 = Cell::Value(values[0])
+            if values.count_ones() == 1 {
+                self.0 = Cell::Value(values.trailing_zeros() as u8)
             }
         }
     }
 }
 
 impl Deref for SudokuCell {
-    type Target = Cell<u8, Vec<u8>>;
+    type Target = Cell<u8, u16>;
     fn deref(&self) -> &Self::Target {
         &self.0
     }
