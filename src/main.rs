@@ -176,16 +176,17 @@ impl Sudoku {
         self.solve_boxes();
     }
 
-    fn solve(&mut self) {
+    fn solve(&mut self) -> Option<usize> {
         let mut step_count = 0;
         while !self.finished() {
             self.step();
             step_count += 1;
+            // at least 1 cell should be solved every step
             if step_count > 81 {
-                println!("Could not solve board. Aborting!");
-                break;
+                return None;
             }
         }
+        Some(step_count)
     }
 }
 
@@ -205,6 +206,10 @@ fn main() {
     let mut sudoku = Sudoku::try_from(BOARD.to_string()).unwrap();
     println!("{sudoku}\n");
 
-    sudoku.solve();
-    println!("{sudoku}\n");
+    if let Some(iterations) = sudoku.solve() {
+        println!("Solved in {iterations} steps");
+        println!("{sudoku}\n");
+    } else {
+        println!("Could not solve sudoku. Aborting!");
+    }
 }
