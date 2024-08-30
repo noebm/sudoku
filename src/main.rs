@@ -61,7 +61,7 @@ struct Sudoku {
 impl TryFrom<String> for Sudoku {
     type Error = ();
     fn try_from(mut value: String) -> Result<Self, Self::Error> {
-        value = value.lines().collect();
+        value = value.lines().map(|line| line.trim()).collect();
 
         if value.len() != 81 {
             return Err(());
