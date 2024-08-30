@@ -81,11 +81,8 @@ impl TryFrom<String> for Sudoku {
 impl std::fmt::Display for Sudoku {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         for x in &self.board {
-            if let Cell::Value(value) = x.0 {
-                write!(f, "{value}")?;
-            } else {
-                write!(f, "0")?;
-            }
+            let value = x.get().unwrap_or(&0);
+            write!(f, "{value}")?;
         }
         Ok(())
     }
