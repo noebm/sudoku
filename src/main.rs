@@ -60,7 +60,9 @@ struct Sudoku {
 
 impl TryFrom<String> for Sudoku {
     type Error = ();
-    fn try_from(value: String) -> Result<Self, Self::Error> {
+    fn try_from(mut value: String) -> Result<Self, Self::Error> {
+        value = value.lines().collect();
+
         if value.len() != 81 {
             return Err(());
         }
@@ -203,9 +205,7 @@ fn main() {
     println!("{BOARD}");
     println!();
 
-    let board_fixed: String = BOARD.to_string().lines().collect();
-
-    let mut sudoku = Sudoku::try_from(board_fixed).unwrap();
+    let mut sudoku = Sudoku::try_from(BOARD.to_string()).unwrap();
     println!("{sudoku}\n");
 
     sudoku.solve();
