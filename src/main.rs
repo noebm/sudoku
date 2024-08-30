@@ -1,9 +1,25 @@
+use std::ops::Deref;
+
 // Cells are either a value or possible values!
 
 #[derive(Copy, Clone)]
 enum Cell<S, T> {
     Value(S),
     Possibly(T),
+}
+
+impl<S, T> Cell<S, T> {
+    fn finished(&self) -> bool {
+        matches!(self, Cell::Value(..))
+    }
+
+    fn get(&self) -> Option<&S> {
+        if let Cell::Value(value) = self {
+            Some(value)
+        } else {
+            None
+        }
+    }
 }
 
 trait Possibilities {
@@ -16,17 +32,10 @@ trait Possibilities {
 #[derive(Clone)]
 struct SudokuCell(Cell<u8, Vec<u8>>);
 
-impl SudokuCell {
-    fn finished(&self) -> bool {
-        matches!(self.0, Cell::Value(..))
-    }
-
-    fn get(&self) -> Option<u8> {
-        if let Cell::Value(value) = self.0 {
-            Some(value)
-        } else {
-            None
-        }
+impl Deref for SudokuCell {
+    type Target = Cell<u8, Vec<u8>>;
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }
 
@@ -106,6 +115,7 @@ impl Sudoku {
         let values: Vec<_> = indices
             .iter()
             .filter_map(|&idx| self.board[idx].get())
+            .copied()
             .collect();
 
         for value in values {
