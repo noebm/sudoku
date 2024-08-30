@@ -26,8 +26,8 @@ impl<S, T> Cell<S, T> {
 struct SudokuCell(Cell<u8, Vec<u8>>);
 
 impl SudokuCell {
-    fn all() -> Vec<u8> {
-        (1..=9).collect()
+    fn all() -> Self {
+        Self(Cell::Possibly((1..=9).collect()))
     }
 
     fn eliminate(&mut self, value: u8) {
@@ -93,7 +93,7 @@ impl std::fmt::Display for Sudoku {
 
 impl Sudoku {
     fn new() -> Self {
-        let cell = SudokuCell(Cell::Possibly(SudokuCell::all()));
+        let cell = SudokuCell::all();
         Self {
             board: vec![cell.clone(); 81],
         }
