@@ -22,32 +22,15 @@ impl<S, T> Cell<S, T> {
     }
 }
 
-trait Possibilities {
-    type Value;
-    type Possibly;
-    fn all() -> Self::Possibly;
-    fn eliminate(&mut self, value: Self::Value); // -> Result<Self::Value, Self::Possibly>;
-}
-
 #[derive(Clone)]
 struct SudokuCell(Cell<u8, Vec<u8>>);
 
-impl Deref for SudokuCell {
-    type Target = Cell<u8, Vec<u8>>;
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl Possibilities for SudokuCell {
-    type Value = u8;
-    type Possibly = Vec<u8>;
-
-    fn all() -> Self::Possibly {
+impl SudokuCell {
+    fn all() -> Vec<u8> {
         (1..=9).collect()
     }
 
-    fn eliminate(&mut self, value: Self::Value) {
+    fn eliminate(&mut self, value: u8) {
         if let Cell::Possibly(values) = &mut self.0 {
             // FIXME this only works for elements contained at most 1 time!
             values
@@ -61,6 +44,13 @@ impl Possibilities for SudokuCell {
                 self.0 = Cell::Value(values[0])
             }
         }
+    }
+}
+
+impl Deref for SudokuCell {
+    type Target = Cell<u8, Vec<u8>>;
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }
 
